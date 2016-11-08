@@ -1,0 +1,79 @@
+group = 'com.bro2.gradle'
+version '0.1.0-alpha'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+    }
+}
+
+apply plugin: 'groovy'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    testCompile 'junit:junit:4.12'
+    testRuntime files(createClasspathManifest)
+    testCompile gradleTestKit()
+}
+
+repositories {
+    jcenter()
+}
+
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            groupId 'com.bro2.gradle'
+            artifactId 'gradle-cmdbatch'
+            version '0.1.0-alpha'
+        }
+    }
+}
+
+bintray {
+    user = property('user')
+    key = property('key')
+    publications = ['MyPublication']
+
+    pkg {
+        repo = 'maven-repo'
+        name = 'gradle-cmdbatch'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com'
+        websiteUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
+        issueTrackerUrl = 'https://github.com/liu-bro2/gradle-cmdbatch/issues'
+        vcsUrl = 'git@github.com:liu-bro2/gradle-cmdbatch.git'
+    }
+
+    version {
+        attributes = ['gradle-plugin': 'com.bro2.gradle:gradle-cmdbatch']
+    }
+}
