@@ -28,28 +28,48 @@ class CmdBatchPluginTest {
 
     @Test
     void test() {
-        def content =
+        /*def content =
                 """|plugins {
-                   | id 'com.bro2.gradle.gradle-cmdbatch'
+                   | id 'com.bro2.gradle.cmd-batch'
                    |}
-                   |cmds {
-                   |    //interpreter 'adb shell'
-                   |    interpreter 'bash'
+                   |cmdBatch {
+                   |    interpreter 'adb'
+                   |    args = ['shell']
                    |    //pwd "${testProjectFolder.root.getCanonicalPath()}"
                    |    input 'build/test/input'
                    |    output 'build/test/output'
-                   |    cmds = ['pwd', 'id', 'ls']
+                   |    cmds = ['ls', 'id', 'exit']
+                   |    reRunCmds = [['cd /data/local/tmp', 'pwd', 'exit'], ['cd /data/local/tmp', 'ls', 'exit']]
                    |    env = [PATH: '/Users/bro2/Library/Android/sdk/platform-tools']
                    |}
+                   |""".stripMargin()*/
+        def content =
+                """|plugins {
+                   | id 'com.bro2.gradle.cmd-batch'
+                   |}
+                   |cmdBatch {
+                   |    cmd {
+                   |        interpreter 'adb1'
+                   |        args = ['shell']
+                   |        output 'build/test/output'
+                   |        cmds = ['ls', 'id', 'exit']
+                   |        env = [PATH: '/Users/bro2/Library/Android/sdk/platform-tools']
+                   |    }
+                   |    cmd {
+                   |        interpreter 'adb2'
+                   |        args = ['shell']
+                   |        output 'build/test/output'
+                   |        cmds = ['ls', 'id', 'exit']
+                   |        env = [PATH: '/Users/bro2/Library/Android/sdk/platform-tools']
+                   |    }
+                   |}
                    |""".stripMargin()
-
-        println "path: ${testProjectFolder.root.getCanonicalPath()}"
 
         writeFile(buildFile, content)
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testProjectFolder.root)
-                .withArguments("-i", "executor")
+                .withArguments("-i", "runCmdBatch")
                 .withPluginClasspath(pluginClasspath)
                 .build()
 

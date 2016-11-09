@@ -7,7 +7,7 @@ class CmdBatchPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.extensions.create('cmds', CmdExtension)
-        project.tasks.create('executor', CmdBatchTask)
+        project.extensions.create('cmdBatch', CmdBatchExtension, project)
+        project.tasks.create('runCmdBatch', CmdBatchTask)
     }
 }

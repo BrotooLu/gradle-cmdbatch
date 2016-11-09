@@ -3,72 +3,112 @@ package com.bro2.gradle.cmdbatch
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
+import java.text.SimpleDateFormat
+
 class CmdBatchTask extends DefaultTask {
 
     @TaskAction
     def startExecute() throws IOException {
-        CmdExtension cmds = project.extensions.cmds
-        cmds.checkParameters()
 
-        String dir
-        if (cmds.pwd != null && cmds.pwd.length() > 0) {
-            dir = cmds.pwd
+        project.extensions.cmdBatch.each {
+            println "${it}"
+        }
+
+        /*try {
+            CmdBatchExtension cmdBatch = project.extensions.cmdBatch
+            execute(cmdBatch)
+        } catch (Throwable e) {
+            Throwable cause = e.getCause()
+            if (cause != null) {
+                throw new StopExecutionException("runCmdBatch error, cause: ${cause.getMessage()} causeString: ${e.toString()}")
+            } else {
+                throw new StopExecutionException("runCmdBatch error, msg: ${e.getMessage()} string: ${cause.toString()}")
+            }
+        }*/
+    }
+
+    private void execute(CmdBatchExtension cmdBatch) {
+        cmdBatch.checkParameters()
+
+        def cmd = []
+        cmd.add(cmdBatch.interpreter)
+        cmd.addAll(cmdBatch.args)
+        File dirFile = getDesireFile(null, cmdBatch.pwd, ".")
+        String dir = dirFile.getCanonicalPath()
+        File output = getDesireFile(dir, cmdBatch.output, "output")
+        if (!output.exists()) {
+            String outputPath = output.getCanonicalPath()
+            String outputParentPath = outputPath.substring(0, outputPath.lastIndexOf(File.separator))
+            new File(outputParentPath).mkdirs()
+            logger.info("make output dirs '${outputParentPath}'")
+        }
+
+        Utils.quickWriteLine(output, "output of '${SimpleDateFormat.getDateTimeInstance().format(new Date())}'")
+        logger.info("pwd: ${dir} output: ${output.getCanonicalPath()}")
+        if (Utils.checkString(cmdBatch.input)) {
+            File input = new File(cmdBatch.input)
+            if (!input.exists()) {
+                input.createNewFile()
+                logger.warn("input file: '${input.getCanonicalPath()}' not exist")
+            }
+            startProcess(dirFile, input, output, cmdBatch.env, cmd)
         } else {
-            dir = new File(".").getCanonicalPath()
+            startProcess(dirFile, cmdBatch.cmds, output, cmdBatch.env, cmd)
         }
+    }
 
-        if (dir.endsWith(File.separator)) {
-            dir = dir.substring(0, dir.lastIndexOf(File.separator))
-        }
-        File input = getDesireFile(dir, cmds.input, "input")
-        File output = getDesireFile(dir, cmds.output, "output")
-
-        logger.info("""pwd: ${dir}
-                      |input: ${input.getCanonicalPath()}
-                      |output: ${output.getCanonicalPath()}
-                      |""".stripMargin())
-
-        BufferedWriter bw
-        try {
-            String inputPath = input.getCanonicalPath();
-            String inputParent = inputPath.substring(0, inputPath.lastIndexOf(File.separator))
-            File inputParentFile = new File(inputParent)
-            inputParentFile.mkdirs()
-            bw = new BufferedWriter(new FileWriter(input))
-            cmds.cmds.each {
-                bw.write(it)
-                bw.newLine()
-            }
-        } finally {
-            if (bw != null) {
-                bw.close()
-            }
-        }
-
-        ProcessBuilder pb = new ProcessBuilder(cmds.interpreter.split(" "))
-        Map<String, String> env = cmds.env
-        if (env != null) {
-            Map<String, String> pbEnv = pb.environment()
-            env.each {
-                String pbVal = pbEnv.get(it.key)
-                if (pbVal != null) {
-                    pbEnv.put(it.key, it.value + File.pathSeparator + pbVal)
-                } else {
-                    pbEnv.put(it.key, it.value)
-                }
-            }
-        }
+    private void startProcess(File dir, File input, File output, Map<String, String> env,
+                              List<String> cmd) {
+        ProcessBuilder pb = new ProcessBuilder(cmd)
+        Utils.appendMap(pb.environment(), env, { original, append ->
+            original + File.pathSeparator + append
+        })
+        pb.directory(dir)
         pb.redirectInput(ProcessBuilder.Redirect.from(input))
-        pb.redirectOutput(ProcessBuilder.Redirect.to(output))
-        pb.start()
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(output))
+        pb.start().waitFor()
+    }
+
+    private void startProcess(File dir, List<String> input, File output, Map<String, String> env,
+                              List<String> cmd) {
+        ProcessBuilder pb = new ProcessBuilder(cmd)
+        Utils.appendMap(pb.environment(), env, { original, append ->
+            original + File.pathSeparator + append
+        })
+        pb.directory(dir)
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(output))
+        Process process = pb.start()
+        OutputStream os = null
+        try {
+            if (input != null) {
+                os = process.getOutputStream()
+                input.each {
+                    os.write(it.getBytes())
+                    os.write(System.lineSeparator().getBytes())
+                }
+                os.flush()
+            }
+            process.waitFor()
+        } finally {
+            Utils.closeClosable(os)
+        }
     }
 
     private static File getDesireFile(String parent, String name, String defaultName) {
-        if (Utils.checkString(name)) {
-            return new File(parent + File.separator + name)
-        } else {
-            return new File(parent + File.separator + defaultName)
+        StringBuilder filePath = new StringBuilder()
+        if (Utils.checkString(parent)) {
+            filePath.append(parent)
+            if (!parent.endsWith(File.separator)) {
+                filePath.append(File.separator)
+            }
         }
+        if (Utils.checkString(name)) {
+            filePath.append(name)
+        } else {
+            filePath.append(defaultName)
+        }
+
+        return new File(filePath.toString())
     }
 
 }
