@@ -32,6 +32,7 @@ class Utils {
             bw = new BufferedWriter(new FileWriter(file))
             bw.write(content)
             bw.newLine()
+            return true
         } finally {
             closeClosable(bw)
         }

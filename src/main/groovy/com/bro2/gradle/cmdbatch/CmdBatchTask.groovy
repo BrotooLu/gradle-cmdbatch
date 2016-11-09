@@ -1,6 +1,7 @@
 package com.bro2.gradle.cmdbatch
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
 
 import java.text.SimpleDateFormat
@@ -8,15 +9,12 @@ import java.text.SimpleDateFormat
 class CmdBatchTask extends DefaultTask {
 
     @TaskAction
-    def startExecute() throws IOException {
-
-        project.extensions.cmdBatch.each {
-            println "${it}"
-        }
-
-        /*try {
-            CmdBatchExtension cmdBatch = project.extensions.cmdBatch
-            execute(cmdBatch)
+    void startExecute() throws IOException {
+        try {
+            project.extensions.cmdBatch.all {
+                logger.info("executing '${it.name}'")
+                this.executeCmd(it as Cmd)
+            }
         } catch (Throwable e) {
             Throwable cause = e.getCause()
             if (cause != null) {
@@ -24,18 +22,20 @@ class CmdBatchTask extends DefaultTask {
             } else {
                 throw new StopExecutionException("runCmdBatch error, msg: ${e.getMessage()} string: ${cause.toString()}")
             }
-        }*/
+        }
     }
 
-    private void execute(CmdBatchExtension cmdBatch) {
-        cmdBatch.checkParameters()
-
-        def cmd = []
-        cmd.add(cmdBatch.interpreter)
-        cmd.addAll(cmdBatch.args)
-        File dirFile = getDesireFile(null, cmdBatch.pwd, ".")
+    void executeCmd(Cmd cmd) {
+        println "comming cm555d ${cmd.name}"
+        cmd.checkParameters()
+        def cmdArgs = []
+        cmdArgs.add(cmd.name)
+        if (cmd.args != null) {
+            cmdArgs.addAll(cmd.args as List<String>)
+        }
+        File dirFile = getDesireFile(null, cmd.dir, ".")
         String dir = dirFile.getCanonicalPath()
-        File output = getDesireFile(dir, cmdBatch.output, "output")
+        File output = getDesireFile(dir, cmd.output, "output")
         if (!output.exists()) {
             String outputPath = output.getCanonicalPath()
             String outputParentPath = outputPath.substring(0, outputPath.lastIndexOf(File.separator))
@@ -44,16 +44,16 @@ class CmdBatchTask extends DefaultTask {
         }
 
         Utils.quickWriteLine(output, "output of '${SimpleDateFormat.getDateTimeInstance().format(new Date())}'")
-        logger.info("pwd: ${dir} output: ${output.getCanonicalPath()}")
-        if (Utils.checkString(cmdBatch.input)) {
-            File input = new File(cmdBatch.input)
+        logger.info("dir: ${dir} output: ${output.getCanonicalPath()}")
+        if (Utils.checkString(cmd.input)) {
+            File input = new File(cmd.input)
             if (!input.exists()) {
                 input.createNewFile()
                 logger.warn("input file: '${input.getCanonicalPath()}' not exist")
             }
-            startProcess(dirFile, input, output, cmdBatch.env, cmd)
+            startProcess(dirFile, input, output, cmd.env, cmdArgs)
         } else {
-            startProcess(dirFile, cmdBatch.cmds, output, cmdBatch.env, cmd)
+            startProcess(dirFile, cmd.cmds, output, cmd.env, cmdArgs)
         }
     }
 

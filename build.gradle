@@ -13,7 +13,6 @@ buildscript {
 
 apply plugin: 'groovy'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 task createClasspathManifest {
@@ -52,7 +51,7 @@ publishing {
             from components.java
             artifact sourcesJar
             groupId 'com.bro2.gradle'
-            artifactId 'gradle-cmdbatch'
+            artifactId 'cmdbatch'
             version '0.1.0-alpha'
         }
     }
@@ -64,8 +63,8 @@ bintray {
     publications = ['MyPublication']
 
     pkg {
-        repo = 'maven-repo'
-        name = 'gradle-cmdbatch'
+        repo = 'repo-gradle-maven'
+        name = 'cmdbatch'
         licenses = ['MIT']
         vcsUrl = 'https://github.com'
         websiteUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
@@ -74,6 +73,6 @@ bintray {
     }
 
     version {
-        attributes = ['gradle-plugin': 'com.bro2.gradle:gradle-cmdbatch']
+        attributes = ['gradle-plugin': 'com.bro2.gradle:cmdbatch']
     }
 }

@@ -3,21 +3,21 @@ package com.bro2.gradle.cmdbatch
 import org.gradle.api.tasks.StopExecutionException
 
 class Cmd {
-    String interpreter
+    String name
     List<String> args
     List<String> cmds
-    String pwd
+    String dir
     String output
     String input
     Map<String, String> env
 
-    def checkParameters() {
-        if (!Utils.checkString(interpreter)) {
-            throw new StopExecutionException('no cmd interpreter')
-        }
+    Cmd(String name) {
+        this.name = name
+    }
 
-        if (cmds == null || cmds.size() < 1) {
-            throw new StopExecutionException('no cmd need to execute')
+    def checkParameters() {
+        if (!Utils.checkString(name)) {
+            throw new StopExecutionException('no cmd assigned')
         }
     }
 
