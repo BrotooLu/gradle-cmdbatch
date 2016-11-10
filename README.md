@@ -35,6 +35,9 @@ cmdBatch {
     ls {
         args = ['-al']
     }
+    
+    ps {
+    }
 
     // ...
 }
