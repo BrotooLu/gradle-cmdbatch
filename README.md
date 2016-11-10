@@ -7,7 +7,7 @@
 ```
 buildscript {
     dependencies {
-        compile 'com.bro2.gradle:gradle-cmdbatch:0.1.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.1.0'
     }
     repositories {
         maven {
