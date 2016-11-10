@@ -26,8 +26,8 @@ cmdBatch {
     adb {
         args = ['shell']               // 参数
         dir '.'                        // 工作目录，默认为工程目录/build/cmdbatch
-        cmds = ['optional']            // 数组-配置 adb 执行的命令
-        input 'optional'               // adb 执行的命令直接从文件里面读取
+        cmds = ['ls', 'exit']          // adb 解析命令方式：数组-配置
+        input 'optional'               // adb 解析命令方式：直接从文件里面读取
         output 'optional'              // 重定向输出，默认为工程目录/build/cmdbatch/*_output
         env = [optional：'optional']   // 环境变量
     }
@@ -41,7 +41,7 @@ cmdBatch {
 ```
 
 ### 注意事项
-对于在解析器(a)中执行解析器(b)的情况，有的b会将所有剩下的命令都读完，导致任务一直处于运行状态无法结束，此类情况需要使用reRunCmds,eg:
+对于在解析器(a)中执行解析器(b)的情况，有的b会将所有剩下的命令都读完，导致任务一直处于运行状态无法结束，此类情况只能用其它方式解决，比如多次执行任务或者看看解释器有没有解决方案eg:<br/>
 adb shell<br/>
 ls<br/>
 su<br/>
