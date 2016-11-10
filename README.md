@@ -1,8 +1,10 @@
 # gradle-cmdbatch
+
 #### 用途
+
 在gradle工程中自动化执行某些脚本，比如写一个用于 Android 的库或者可执行文件，可以用来编译完成后自动 push 到手机上。
 
-#### 配置格式
+#### 使用方式
 
 ```
 buildscript {
@@ -53,6 +55,7 @@ exit<br/>
 ps<br/>
 exit<br/>
 某些su会把id exit ps exit都读进来，导致adb无法执行 ps 和 exit，则可以使用如下方式运行：
+
 ```
 cmdBatch {
     adb {
