@@ -1,5 +1,5 @@
 group = 'com.bro2.gradle'
-version '0.1.0-alpha'
+version '0.1.0'
 
 buildscript {
     repositories {
@@ -52,7 +52,7 @@ publishing {
             artifact sourcesJar
             groupId 'com.bro2.gradle'
             artifactId 'cmdbatch'
-            version '0.1.0-alpha'
+            version '0.1.0'
         }
     }
 }

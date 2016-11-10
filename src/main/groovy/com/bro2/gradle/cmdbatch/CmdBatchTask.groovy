@@ -26,16 +26,15 @@ class CmdBatchTask extends DefaultTask {
     }
 
     void executeCmd(Cmd cmd) {
-        println "comming cm555d ${cmd.name}"
         cmd.checkParameters()
         def cmdArgs = []
         cmdArgs.add(cmd.name)
         if (cmd.args != null) {
             cmdArgs.addAll(cmd.args as List<String>)
         }
-        File dirFile = getDesireFile(null, cmd.dir, ".")
+        File dirFile = getDesireFile(null, cmd.dir, "build/cmdbatch")
         String dir = dirFile.getCanonicalPath()
-        File output = getDesireFile(dir, cmd.output, "output")
+        File output = getDesireFile(dir, cmd.output, "${cmd.name}_output")
         if (!output.exists()) {
             String outputPath = output.getCanonicalPath()
             String outputParentPath = outputPath.substring(0, outputPath.lastIndexOf(File.separator))

@@ -30,18 +30,15 @@ class CmdBatchPluginTest {
     void test() {
         def content =
                 """|plugins {
-                   | id 'com.bro2.gradle.cmd-batch'
+                   |    id 'com.bro2.gradle.cmd-batch'
                    |}
                    |cmdBatch {
-                   |    bash {
-                   |        input = 'build/test/input'
-                   |        output = 'build/test/output'
-                   |        env = [PATH: '/Users/bro2/Library/Android/sdk/platform-tools']
-                   |    }
                    |    ps {
                    |        args = ['-l']
-                   |        output = 'build/test/outputps'
-                   |        env = [PATH: '/Users/bro2/Library/Android/sdk/platform-tools']
+                   |    }
+                   |
+                   |    bash {
+                   |        cmds = ['ls', 'id', 'exit']
                    |    }
                    |}
                    |""".stripMargin()
