@@ -5,8 +5,8 @@
 ### 使用方式
 #### 一、自动档
 
-优点：不需要源码；缺点：可能需要wall网<br/>
-build.gradle编写示例
+优点：不需要源码；缺点：可能需要wall网。<br/>
+build.gradle编写示例：
 
 ```
 buildscript {
@@ -50,9 +50,9 @@ cmdBatch {
 #### 二、手动档
 
 1、clone 源码；<br/>
-2、生成jar包；(gradle jar AndroidStudio用户可以直接task面板的jar)；<br/>
+2、生成jar包；(可以运行gradle/gradlew jar，AndroidStudio用户可以直接点击task面板的jar)；<br/>
 3、将生成的jar包导入工程目录某个文件夹，如build-lib；<br/>
-build.gradle编写示例同一，但需要修改dependencies
+build.gradle编写示例同一，但需要修改dependencies：
 
 ```
 buildscript {
