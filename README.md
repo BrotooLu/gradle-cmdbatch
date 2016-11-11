@@ -3,6 +3,10 @@
 ### 用途
 在gradle工程中自动化执行某些脚本，比如写一个用于 Android 的库或者可执行文件，可以用来编译完成后自动 push 到手机上。
 ### 使用方式
+#### 一、自动档
+
+优点：不需要源码；缺点：可能需要wall网<br/>
+build.gradle编写示例
 
 ```
 buildscript {
@@ -25,11 +29,11 @@ ext {
 cmdBatch {
     adb {
         args = ['shell']               // 参数
-        dir '.'                        // 工作目录，默认为工程目录/build/cmdbatch
+        dir = '.'                      // 工作目录，默认为工程目录/build/cmdbatch
         cmds = ['ls', 'exit']          // adb 解析命令方式：数组-配置
-        input 'optional'               // adb 解析命令方式：直接从文件里面读取
-        output 'optional'              // 重定向输出，默认为工程目录/build/cmdbatch/*_output
-        env = [optional：'optional']   // 环境变量
+        input = 'optional'             // adb 解析命令方式：直接从文件里面读取
+        output = 'optional'            // 重定向输出，默认为工程目录/build/cmdbatch/*_output
+        env = ['optional'：'optional'] // 环境变量
     }
 
     ls {
@@ -40,6 +44,21 @@ cmdBatch {
     }
 
     // ...
+}
+```
+
+#### 二、手动档
+
+1、clone 源码；<br/>
+2、生成jar包；(gradle jar AndroidStudio用户可以直接task面板的jar)；<br/>
+3、将生成的jar包导入工程目录某个文件夹，如build-lib；<br/>
+build.gradle编写示例同一，但需要修改dependencies
+
+```
+buildscript {
+    dependencies {
+        classpath files('build-lib/cmdbatch-0.1.0.jar')
+    }
 }
 ```
 
