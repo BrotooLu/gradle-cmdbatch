@@ -61,6 +61,7 @@ bintray {
     user = property('user')
     key = property('key')
     publications = ['MyPublication']
+    //override = true
 
     pkg {
         repo = 'repo-maven-gradle'
@@ -73,5 +74,6 @@ bintray {
 
     version {
         vcsTag = 'v0.2.0'
+        desc = 'with child path replace'
     }
 }
