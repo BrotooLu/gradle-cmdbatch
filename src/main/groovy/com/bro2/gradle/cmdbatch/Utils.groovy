@@ -2,11 +2,11 @@ package com.bro2.gradle.cmdbatch
 
 class Utils {
 
-    static boolean checkString(String str) {
+    public static boolean checkString(String str) {
         return str != null && str.length() > 0
     }
 
-    static void appendMap(Map<?, ?> map, Map<?, ?> val, Closure append) {
+    public static void appendMap(Map<?, ?> map, Map<?, ?> val, Closure append) {
         if (map == null || val == null)
             return
 
@@ -26,7 +26,7 @@ class Utils {
         }
     }
 
-    static boolean quickWriteLine(File file, String content) {
+    public static boolean quickWriteWithNewLine(File file, String content) {
         BufferedWriter bw = null
         try {
             bw = new BufferedWriter(new FileWriter(file))
@@ -37,5 +37,23 @@ class Utils {
             closeClosable(bw)
         }
     }
+
+    public static File getDesireFile(String parent, String name, String defaultName) {
+        StringBuilder filePath = new StringBuilder()
+        if (checkString(parent)) {
+            filePath.append(parent)
+            if (!parent.endsWith(File.separator)) {
+                filePath.append(File.separator)
+            }
+        }
+        if (checkString(name)) {
+            filePath.append(name)
+        } else {
+            filePath.append(defaultName)
+        }
+
+        return new File(filePath.toString())
+    }
+
 
 }

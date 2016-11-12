@@ -9,67 +9,54 @@ import java.text.SimpleDateFormat
 class CmdBatchTask extends DefaultTask {
 
     @TaskAction
-    void startExecute() throws IOException {
+    void runCmdBatch() throws IOException {
         try {
-            project.extensions.cmdBatch.all {
-                logger.info("executing '${it.name}'")
-                this.executeCmd(it as Cmd)
+            CmdBatchExtension batch = project.extensions.cmdBatch
+            batch.orderedCmds.eachWithIndex { it, idx ->
+                project.logger.info("executing $it: [ ${batch.cmds[it]} ]")
+                executeCmd(batch.cmds[it], batch.dir, "${idx}-${it}", batch.env)
             }
         } catch (Throwable e) {
+            if (e instanceof StopExecutionException) {
+                throw e
+            }
+
             Throwable cause = e.getCause()
             if (cause != null) {
-                throw new StopExecutionException("runCmdBatch error, cause: ${cause.getMessage()} causeString: ${e.toString()}")
+                throw new StopExecutionException("runCmdBatch error, cause: ${cause.getMessage()} err: ${e.toString()}")
             } else {
-                throw new StopExecutionException("runCmdBatch error, msg: ${e.getMessage()} string: ${cause.toString()}")
+                throw new StopExecutionException("runCmdBatch error, msg: ${e.getMessage()} err: ${cause.toString()}")
             }
         }
     }
 
-    void executeCmd(Cmd cmd) {
+    void executeCmd(Cmd cmd, String dir, String output, Map<String, String> env) {
         cmd.checkParameters()
+
         def cmdArgs = []
         cmdArgs.add(cmd.name)
         if (cmd.args != null) {
             cmdArgs.addAll(cmd.args as List<String>)
         }
-        File dirFile = getDesireFile(null, cmd.dir, "build/cmdbatch")
-        String dir = dirFile.getCanonicalPath()
-        File output = getDesireFile(dir, cmd.output, "${cmd.name}_output")
-        if (!output.exists()) {
-            String outputPath = output.getCanonicalPath()
-            String outputParentPath = outputPath.substring(0, outputPath.lastIndexOf(File.separator))
-            new File(outputParentPath).mkdirs()
-            logger.info("make output dirs '${outputParentPath}'")
+
+        File dirFile = Utils.getDesireFile(null, dir, "build/cmdbatch")
+        String dirPath = dirFile.getCanonicalPath()
+        if (!dirFile.exists()) {
+            project.logger.info("mkdirs $dirPath")
+            dirFile.mkdirs()
         }
 
-        Utils.quickWriteLine(output, "output of '${SimpleDateFormat.getDateTimeInstance().format(new Date())}'")
-        logger.info("dir: ${dir} output: ${output.getCanonicalPath()}")
-        if (Utils.checkString(cmd.input)) {
-            File input = new File(cmd.input)
-            if (!input.exists()) {
-                input.createNewFile()
-                logger.warn("input file: '${input.getCanonicalPath()}' not exist")
-            }
-            startProcess(dirFile, input, output, cmd.env, cmdArgs)
-        } else {
-            startProcess(dirFile, cmd.cmds, output, cmd.env, cmdArgs)
-        }
+        File outputFile = Utils.getDesireFile(dirPath, output, output)
+        StringBuilder sb = new StringBuilder();
+        sb.append(SimpleDateFormat.getDateTimeInstance().format(new Date()));
+        sb.append(System.lineSeparator());
+        sb.append(cmdArgs);
+        Utils.quickWriteWithNewLine(outputFile, sb.toString())
+        startProcess(dirFile, cmd.subCmds, outputFile, env, cmdArgs)
     }
 
-    private void startProcess(File dir, File input, File output, Map<String, String> env,
-                              List<String> cmd) {
-        ProcessBuilder pb = new ProcessBuilder(cmd)
-        Utils.appendMap(pb.environment(), env, { original, append ->
-            original + File.pathSeparator + append
-        })
-        pb.directory(dir)
-        pb.redirectInput(ProcessBuilder.Redirect.from(input))
-        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(output))
-        pb.start().waitFor()
-    }
-
-    private void startProcess(File dir, List<String> input, File output, Map<String, String> env,
-                              List<String> cmd) {
+    static void startProcess(File dir, List<String> input, File output, Map<String, String> env,
+                             List<String> cmd) {
         ProcessBuilder pb = new ProcessBuilder(cmd)
         Utils.appendMap(pb.environment(), env, { original, append ->
             original + File.pathSeparator + append
@@ -91,23 +78,6 @@ class CmdBatchTask extends DefaultTask {
         } finally {
             Utils.closeClosable(os)
         }
-    }
-
-    private static File getDesireFile(String parent, String name, String defaultName) {
-        StringBuilder filePath = new StringBuilder()
-        if (Utils.checkString(parent)) {
-            filePath.append(parent)
-            if (!parent.endsWith(File.separator)) {
-                filePath.append(File.separator)
-            }
-        }
-        if (Utils.checkString(name)) {
-            filePath.append(name)
-        } else {
-            filePath.append(defaultName)
-        }
-
-        return new File(filePath.toString())
     }
 
 }

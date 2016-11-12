@@ -2,16 +2,23 @@
 
 ### 用途
 在gradle工程中自动化执行某些脚本，比如写一个用于 Android 的库或者可执行文件，可以用来编译完成后自动 push 到手机上。
+### 更新说明
+1、修复了不能重复执行同一个程序的问题；<br/>
+2、统一使用一个工作目录和环境变量；<br/>
+3、在某 task 后自动执行 runCmdBatch 的配置位置放在cmdBatch内；<br/>
+4、不再提供直接读取输入文件的功能；<br/>
+5、不再提供设置输出路径的功能，而是直接输出在工作目录下，按“程序下标+名字+同名下标“命名;<br/>
+6、[v0.1.0 文档 README](https://github.com/liu-bro2/gradle-cmdbatch/tree/v0.1.0)
 ### 使用方式
 #### 一、自动档
 
 优点：不需要源码；缺点：可能需要wall网。<br/>
-build.gradle编写示例：
+编辑你的项目 build.gradle 示例：
 
 ```
 buildscript {
     dependencies {
-        classpath 'com.bro2.gradle:cmdbatch:0.1.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
     }
     repositories {
         maven {
@@ -22,25 +29,24 @@ buildscript {
 
 apply plugin: 'com.bro2.gradle.cmd-batch'
 
-ext {
-    runCmdBatchAfter = 'build'         // 在 build 执行后自动执行
-}
-
 cmdBatch {
-    adb {
-        args = ['shell']               // 参数
-        dir = '.'                      // 工作目录，默认为工程目录/build/cmdbatch
-        cmds = ['ls', 'exit']          // adb 解析命令方式：数组-配置
-        input = 'optional'             // adb 解析命令方式：直接从文件里面读取
-        output = 'optional'            // 重定向输出，默认为工程目录/build/cmdbatch/*_output
-        env = ['optional'：'optional'] // 环境变量
+    dir = '.'                          // [optional] 工作目录，默认为工程目录/build/cmdbatch
+    env = ['optional'：'optional']     // [optional] 环境变量
+    runCmdBatchAfter = 'build'         // [optional] 在 build 后自动执行
+    
+    cmd {
+        name = 'adb'                   // [mandatory] 运行程序adb
+        args = ['shell']               // [optional] 参数
+        subCmds = ['ls', 'exit']       // [optional] 程序adb解析的命令
     }
 
-    ls {
-        args = ['-al']
+    cmd {
+        name = 'ls'
+        args = ['-a', '-l']
     }
     
-    ps {
+    cmd {
+        name = 'ls'
     }
 
     // ...
@@ -57,13 +63,29 @@ build.gradle编写示例同一，但需要修改dependencies：
 ```
 buildscript {
     dependencies {
-        classpath files('build-lib/cmdbatch-0.1.0.jar')
+        classpath fileTree(dir: 'build-lib', include:'*.jar')
+    }
+}
+```
+
+如果不想要手动拷贝jar包，可以利用 mavenLocal 帮忙，步骤：<br/>
+1、clone 源码; <br/>
+2、运行publishToMavenLocal; <br/>
+3、修改工程依赖；<br/>
+
+```
+buildscript {
+    dependencies {
+        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
+    }
+    repositories {
+        mavenLocal()
     }
 }
 ```
 
 ### 注意事项
-对于在解析器(a)中执行解析器(b)的情况，有的b会将所有剩下的命令都读完，导致任务一直处于运行状态无法结束，此类情况只能用其它方式解决，比如多次执行任务或者看看解释器有没有解决方案eg:<br/>
+1、对于在解析器(a)中执行解析器(b)的情况，有的b会将所有剩下的输入都读完，导致任务一直处于运行状态无法结束，此类情况只能用其它方式解决，比如多次执行该执行器或者看看解释器有没有解决方案eg:<br/>
 adb shell<br/>
 ls<br/>
 su<br/>
@@ -75,9 +97,9 @@ exit<br/>
 
 ```
 cmdBatch {
-    adb {
+    cmd {
         args = ['shell']
-        cmds = ['ls', "su -c id", 'ps', 'exit']
+        subCmds = ['ls', "su -c id", 'ps', 'exit']
     }
 }
 ```

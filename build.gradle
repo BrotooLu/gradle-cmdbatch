@@ -1,5 +1,5 @@
 group = 'com.bro2.gradle'
-version '0.1.0'
+version '0.2.0'
 
 buildscript {
     repositories {
@@ -52,7 +52,7 @@ publishing {
             artifact sourcesJar
             groupId 'com.bro2.gradle'
             artifactId 'cmdbatch'
-            version '0.1.0'
+            version '0.2.0'
         }
     }
 }
@@ -66,13 +66,12 @@ bintray {
         repo = 'repo-maven-gradle'
         name = 'cmdbatch'
         licenses = ['MIT']
-        vcsUrl = 'https://github.com'
+        vcsUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         websiteUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         issueTrackerUrl = 'https://github.com/liu-bro2/gradle-cmdbatch/issues'
-        vcsUrl = 'git@github.com:liu-bro2/gradle-cmdbatch.git'
     }
 
     version {
-        attributes = ['gradle-plugin': 'com.bro2.gradle:cmdbatch']
+        vcsTag = 'v0.2.0'
     }
 }

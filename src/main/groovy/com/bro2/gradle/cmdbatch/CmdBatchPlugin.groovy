@@ -1,6 +1,5 @@
 package com.bro2.gradle.cmdbatch
 
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -8,15 +7,17 @@ class CmdBatchPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        NamedDomainObjectContainer<Cmd> cmdBatch = project.container(Cmd)
-        project.extensions.add('cmdBatch', cmdBatch)
+        project.extensions.create('cmdBatch', CmdBatchExtension)
         project.tasks.create('runCmdBatch', CmdBatchTask)
+        if (project.hasProperty('debug')) {
+            project.tasks.create('debug', {
+                doLast {
+                    project.logger.info("executing debug task...");
+                }
+            })
+        }
         project.afterEvaluate {
-            if (!project.ext.has('runCmdBatchAfter')) {
-                project.logger.info("no runCmdBatchAfter property")
-                return
-            }
-            String after = project.ext.get('runCmdBatchAfter')
+            String after = project.cmdBatch.runCmdBatchAfter
             if (Utils.checkString(after)) {
                 def before = project.tasks.findByName(after)
                 if (before == null) {
@@ -24,6 +25,8 @@ class CmdBatchPlugin implements Plugin<Project> {
                 } else {
                     before.finalizedBy(project.tasks.runCmdBatch)
                 }
+            } else {
+                project.logger.info("no runCmdBatchAfter assigned")
             }
         }
     }

@@ -32,13 +32,21 @@ class CmdBatchPluginTest {
                 """|plugins {
                    |    id 'com.bro2.gradle.cmd-batch'
                    |}
+                   |
                    |cmdBatch {
-                   |    ps {
-                   |        args = ['-l']
+                   |    runCmdBatchAfter 'debug'
+                   |    cmd {
+                   |        name = 'ls'
+                   |        args = ['-l', '-a']
                    |    }
                    |
-                   |    bash {
-                   |        cmds = ['ls', 'id', 'exit']
+                   |    cmd {
+                   |        name = 'ls'
+                   |    }
+                   |
+                   |    cmd {
+                   |        name = 'bash'
+                   |        subCmds = ['ls', 'id', 'exit']
                    |    }
                    |}
                    |""".stripMargin()
@@ -47,7 +55,7 @@ class CmdBatchPluginTest {
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testProjectFolder.root)
-                .withArguments("-i", "-s", "runCmdBatch")
+                .withArguments("-i", "-s", "-Pdebug", "debug")
                 .withPluginClasspath(pluginClasspath)
                 .build()
 
