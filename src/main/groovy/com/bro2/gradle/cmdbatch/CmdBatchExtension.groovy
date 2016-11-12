@@ -25,14 +25,12 @@ class CmdBatchExtension {
             throw new IllegalArgumentException("cmd name can't be empty")
         }
 
-        if (cmds[name] != null) {
-            int index = 1
-            while (true) {
-                name += "$index"
-                if (cmds[name] == null) {
-                    break
-                }
+        int index = 1
+        while (true) {
+            if (cmds[name] == null) {
+                break
             }
+            name += "$index"
         }
         orderedCmds.add(name)
         cmds.put(name, _cmd)

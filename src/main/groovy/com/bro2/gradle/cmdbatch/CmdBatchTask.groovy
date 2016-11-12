@@ -39,14 +39,14 @@ class CmdBatchTask extends DefaultTask {
             cmdArgs.addAll(cmd.args as List<String>)
         }
 
-        File dirFile = Utils.getDesireFile(null, dir, "build/cmdbatch")
+        File dirFile = Utils.getDesireFile(null, dir, "build/cmdbatch", false)
         String dirPath = dirFile.getCanonicalPath()
         if (!dirFile.exists()) {
             project.logger.info("mkdirs $dirPath")
             dirFile.mkdirs()
         }
 
-        File outputFile = Utils.getDesireFile(dirPath, output, output)
+        File outputFile = Utils.getDesireFile(dirPath, output, output, true)
         StringBuilder sb = new StringBuilder();
         sb.append(SimpleDateFormat.getDateTimeInstance().format(new Date()));
         sb.append(System.lineSeparator());

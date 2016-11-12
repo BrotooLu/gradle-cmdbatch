@@ -21,8 +21,12 @@ class Utils {
     }
 
     public static void closeClosable(Closeable closeable) {
-        if (closeable != null) {
-            closeable.close()
+        try {
+            if (closeable != null) {
+                closeable.close()
+            }
+        } catch (Throwable e) {
+            e.printStackTrace()
         }
     }
 
@@ -38,7 +42,8 @@ class Utils {
         }
     }
 
-    public static File getDesireFile(String parent, String name, String defaultName) {
+    public static File getDesireFile(String parent, String name, String defaultName,
+                                     boolean replaceNameSeparator, String... rep) {
         StringBuilder filePath = new StringBuilder()
         if (checkString(parent)) {
             filePath.append(parent)
@@ -46,10 +51,18 @@ class Utils {
                 filePath.append(File.separator)
             }
         }
-        if (checkString(name)) {
-            filePath.append(name)
+
+        String chield = name;
+        if (!checkString(chield)) {
+            chield = defaultName;
+        }
+
+        if (!replaceNameSeparator) {
+            filePath.append(chield)
+        } else if (rep == null || rep.length < 1) {
+            filePath.append(chield.replaceAll(File.separator, "_"))
         } else {
-            filePath.append(defaultName)
+            filePath.append(chield.replaceAll(File.separator, rep[0]))
         }
 
         return new File(filePath.toString())

@@ -36,8 +36,9 @@ class CmdBatchPluginTest {
                    |cmdBatch {
                    |    runCmdBatchAfter 'debug'
                    |    cmd {
-                   |        name = 'ls'
-                   |        args = ['-l', '-a']
+                   |        name = '/Users/bro2/Library/Android/sdk/platform-tools/adb'
+                   |        args = ['shell']
+                   |        subCmds = ['id', 'exit']
                    |    }
                    |
                    |    cmd {
