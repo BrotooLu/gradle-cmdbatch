@@ -1,5 +1,7 @@
 package com.bro2.gradle.cmdbatch
 
+import java.util.regex.Pattern
+
 class Utils {
 
     public static boolean checkString(String str) {
@@ -52,17 +54,34 @@ class Utils {
             }
         }
 
-        String chield = name;
-        if (!checkString(chield)) {
-            chield = defaultName;
+        String child = name;
+        if (!checkString(child)) {
+            child = defaultName;
         }
 
         if (!replaceNameSeparator) {
-            filePath.append(chield)
-        } else if (rep == null || rep.length < 1) {
-            filePath.append(chield.replaceAll(File.separator, "_"))
+            filePath.append(child)
         } else {
-            filePath.append(chield.replaceAll(File.separator, rep[0]))
+            boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
+            String separator = File.separator
+            String repalce
+            if (rep == null || rep.length < 1) {
+                repalce = "_"
+            } else {
+                repalce = rep[0]
+            }
+
+            if (isWindows) {
+                child = child.replaceAll(":", repalce)
+                int index = child.indexOf(separator)
+                if (index < 0) {
+                    separator = "/"
+                } else {
+                    separator = Pattern.quote(separator)
+                }
+            }
+
+            filePath.append(child.replaceAll(separator, repalce))
         }
 
         return new File(filePath.toString())

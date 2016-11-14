@@ -36,19 +36,17 @@ class CmdBatchPluginTest {
                    |cmdBatch {
                    |    runCmdBatchAfter 'debug'
                    |    cmd {
-                   |        name = '/Users/bro2/Library/Android/sdk/platform-tools/adb'
-                   |        args = ['shell']
-                   |        subCmds = ['id', 'exit']
+                   |        name = "C:/Users/liuyongyou/Desktop/cat_s_log.bat"
                    |    }
                    |
-                   |    cmd {
+                   |    /*cmd {
                    |        name = 'ls'
                    |    }
                    |
                    |    cmd {
                    |        name = 'bash'
                    |        subCmds = ['ls', 'id', 'exit']
-                   |    }
+                   |    }*/
                    |}
                    |""".stripMargin()
 
@@ -73,6 +71,13 @@ class CmdBatchPluginTest {
                 output.close();
             }
         }
+    }
+
+    @Test
+    void testPath() {
+        String name = "C:\\Users\\liuyongyou\\Desktop\\cat_s_log.bat"
+        File file = Utils.getDesireFile("parent", name, null, true)
+        println "file path: ${file.getCanonicalPath()}"
     }
 
 }
