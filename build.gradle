@@ -1,5 +1,5 @@
 group = 'com.bro2.gradle'
-version '0.2.0'
+version '0.2.1'
 
 buildscript {
     repositories {
@@ -52,7 +52,7 @@ publishing {
             artifact sourcesJar
             groupId 'com.bro2.gradle'
             artifactId 'cmdbatch'
-            version '0.2.0'
+            version '0.2.1'
         }
     }
 }
@@ -61,19 +61,25 @@ bintray {
     user = property('user')
     key = property('key')
     publications = ['MyPublication']
-    //override = true
+    publish = true
+//    override = true
 
     pkg {
         repo = 'repo-maven-gradle'
         name = 'cmdbatch'
         licenses = ['MIT']
+        desc = 'a gradle plugin which can auto execute a batch of commands'
         vcsUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         websiteUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         issueTrackerUrl = 'https://github.com/liu-bro2/gradle-cmdbatch/issues'
+        githubRepo = 'liu-bro2/gradle-cmdbatch'
+        githubReleaseNotesFile = 'README.md'
+
+        version {
+            vcsTag = 'v0.2.1'
+            released  = new Date()
+            desc = 'with fix output path error'
+        }
     }
 
-    version {
-        vcsTag = 'v0.2.0'
-        desc = 'with child path replace'
-    }
 }

@@ -44,44 +44,56 @@ class Utils {
         }
     }
 
+    private static String formatPathAsUnixStyle(String path) {
+        boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
+        if (!isWindows) {
+            return path
+        }
+
+        String separator = File.separator
+        if (path.indexOf(separator) < 0) {
+            return path
+        }
+
+        return path.replaceAll(Pattern.quote(File.separator), "/")
+    }
+
     public static File getDesireFile(String parent, String name, String defaultName,
                                      boolean replaceNameSeparator, String... rep) {
         StringBuilder filePath = new StringBuilder()
-        if (checkString(parent)) {
-            filePath.append(parent)
-            if (!parent.endsWith(File.separator)) {
-                filePath.append(File.separator)
+        boolean hasParent = checkString(parent)
+        if (hasParent) {
+            String parentPath = formatPathAsUnixStyle(parent)
+            filePath.append(parentPath)
+            if (!parentPath.endsWith("/")) {
+                filePath.append("/")
             }
         }
 
-        String child = name;
+        String child = name
         if (!checkString(child)) {
-            child = defaultName;
+            if (!checkString(defaultName)) {
+                throw new IllegalArgumentException("no name or default name assigned")
+            }
+            child = defaultName
         }
+
+        child = formatPathAsUnixStyle(child)
 
         if (!replaceNameSeparator) {
             filePath.append(child)
         } else {
-            boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
-            String separator = File.separator
-            String repalce
+            String replace
             if (rep == null || rep.length < 1) {
-                repalce = "_"
+                replace = "_"
             } else {
-                repalce = rep[0]
+                replace = rep[0]
             }
 
-            if (isWindows) {
-                child = child.replaceAll(":", repalce)
-                int index = child.indexOf(separator)
-                if (index < 0) {
-                    separator = "/"
-                } else {
-                    separator = Pattern.quote(separator)
-                }
+            if (hasParent) {
+                child = child.replaceAll(":", "")
             }
-
-            filePath.append(child.replaceAll(separator, repalce))
+            filePath.append(child.replaceAll("/", replace))
         }
 
         return new File(filePath.toString())

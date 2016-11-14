@@ -73,11 +73,4 @@ class CmdBatchPluginTest {
         }
     }
 
-    @Test
-    void testPath() {
-        String name = "C:\\Users\\liuyongyou\\Desktop\\cat_s_log.bat"
-        File file = Utils.getDesireFile("parent", name, null, true)
-        println "file path: ${file.getCanonicalPath()}"
-    }
-
 }
