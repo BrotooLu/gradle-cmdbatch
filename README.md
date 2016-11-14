@@ -17,7 +17,7 @@
 ```
 buildscript {
     dependencies {
-        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.2.1'
     }
     repositories {
         maven {
@@ -58,7 +58,7 @@ cmdBatch {
 2、生成jar包；(可以运行gradle/gradlew jar，AndroidStudio用户可以直接点击task面板的jar)；<br/>
 3、将生成的jar包导入工程目录某个文件夹，如build-lib；<br/>
 
-[不编译获取jar包请点击](https://dl.bintray.com/bro2/repo-maven-gradle/com/bro2/gradle/cmdbatch/0.2.0/) 
+[不编译获取jar包请点击](https://dl.bintray.com/bro2/repo-maven-gradle/com/bro2/gradle/cmdbatch/0.2.1/) 
 build.gradle编写示例同一，但需要修改dependencies：
 
 ```
@@ -77,7 +77,7 @@ buildscript {
 ```
 buildscript {
     dependencies {
-        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.2.1'
     }
     repositories {
         mavenLocal()
