@@ -8,7 +8,7 @@
 3、在某 task 后自动执行 runCmdBatch 的配置位置放在cmdBatch内；<br/>
 4、不再提供直接读取输入文件的功能；<br/>
 5、不再提供设置输出路径的功能，而是直接输出在工作目录下，按“程序下标+名字+同名下标“命名;<br/>
-6、[v0.1.0 文档 README](https://github.com/liu-bro2/gradle-cmdbatch/tree/v0.1.0)
+6、[v0.1.0 文档 README](https://github.com/liu-bro2/gradle-cmdbatch/tree/v0.1.0);<br>/
 7、特殊对待环境变量PATH，使用独立的配置
 ### 使用方式
 #### 一、自动档
