@@ -67,12 +67,14 @@ bintray {
     user = property('user')
     key = property('key')
     publications = ['MyPublication']
-    //override = true
+    publish = true
+//    override = true
 
     pkg {
         repo = 'repo-maven-gradle'
         name = project.artifactId
         licenses = ['MIT']
+        desc = 'a gradle plugin which can auto execute a batch of commands'
         vcsUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         websiteUrl = 'https://github.com/liu-bro2/gradle-cmdbatch'
         issueTrackerUrl = 'https://github.com/liu-bro2/gradle-cmdbatch/issues'
@@ -84,4 +86,5 @@ bintray {
             vcsTag = project.vcsTag
         }
     }
+
 }

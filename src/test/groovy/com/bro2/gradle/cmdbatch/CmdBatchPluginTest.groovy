@@ -43,14 +43,14 @@ class CmdBatchPluginTest {
                    |        subCmds = ['id', 'exit']
                    |    }
                    |
-                   |    cmd {
+                   |    /*cmd {
                    |        name = 'ls'
                    |    }
                    |
                    |    cmd {
                    |        name = 'bash'
                    |        subCmds = ['ls', 'id', 'exit']
-                   |    }
+                   |    }*/
                    |}
                    |""".stripMargin()
 

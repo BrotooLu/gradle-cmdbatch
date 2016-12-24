@@ -1,5 +1,7 @@
 package com.bro2.gradle.cmdbatch
 
+import java.util.regex.Pattern
+
 class Utils {
 
     public static boolean checkString(String str) {
@@ -42,13 +44,29 @@ class Utils {
         }
     }
 
+    private static String formatPathAsUnixStyle(String path) {
+        boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
+        if (!isWindows) {
+            return path
+        }
+
+        String separator = File.separator
+        if (path.indexOf(separator) < 0) {
+            return path
+        }
+
+        return path.replaceAll(Pattern.quote(File.separator), "/")
+    }
+
     public static File getDesireFile(String parent, String name, String defaultName,
                                      boolean replaceNameSeparator, String... rep) {
         StringBuilder filePath = new StringBuilder()
-        if (checkString(parent)) {
-            filePath.append(parent)
-            if (!parent.endsWith(File.separator)) {
-                filePath.append(File.separator)
+        boolean hasParent = checkString(parent)
+        if (hasParent) {
+            String parentPath = formatPathAsUnixStyle(parent)
+            filePath.append(parentPath)
+            if (!parentPath.endsWith("/")) {
+                filePath.append("/")
             }
         }
 
@@ -56,6 +74,8 @@ class Utils {
         if (!checkString(child)) {
             child = defaultName;
         }
+
+        child = formatPathAsUnixStyle(child)
 
         if (!replaceNameSeparator) {
             filePath.append(child)
