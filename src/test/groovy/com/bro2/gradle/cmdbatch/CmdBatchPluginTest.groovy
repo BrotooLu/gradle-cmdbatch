@@ -35,8 +35,10 @@ class CmdBatchPluginTest {
                    |
                    |cmdBatch {
                    |    runCmdBatchAfter 'debug'
+                   |    env = [debug: 'debug-env']
+                   |    path = '/Users/bro2/Library/Android/sdk/platform-tools'
                    |    cmd {
-                   |        name = '/Users/bro2/Library/Android/sdk/platform-tools/adb'
+                   |        name = 'adb'
                    |        args = ['shell']
                    |        subCmds = ['id', 'exit']
                    |    }

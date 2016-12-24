@@ -14,7 +14,7 @@ class CmdBatchTask extends DefaultTask {
             CmdBatchExtension batch = project.extensions.cmdBatch
             batch.orderedCmds.eachWithIndex { it, idx ->
                 project.logger.info("executing $it: [ ${batch.cmds[it]} ]")
-                executeCmd(batch.cmds[it], batch.dir, "${idx}-${it}", batch.env)
+                executeCmd(batch.cmds[it], batch.dir, "${idx}-${it}", batch.env, batch.path)
             }
         } catch (Throwable e) {
             if (e instanceof StopExecutionException) {
@@ -30,7 +30,7 @@ class CmdBatchTask extends DefaultTask {
         }
     }
 
-    void executeCmd(Cmd cmd, String dir, String output, Map<String, String> env) {
+    void executeCmd(Cmd cmd, String dir, String output, Map<String, String> env, String path) {
         cmd.checkParameters()
 
         def cmdArgs = []
@@ -39,7 +39,7 @@ class CmdBatchTask extends DefaultTask {
             cmdArgs.addAll(cmd.args as List<String>)
         }
 
-        File dirFile = Utils.getDesireFile(null, dir, "build/cmdbatch", false)
+        File dirFile = Utils.getDesireFile(project.buildDir.getCanonicalPath(), dir, "cmdbatch", false)
         String dirPath = dirFile.getCanonicalPath()
         if (!dirFile.exists()) {
             project.logger.info("mkdirs $dirPath")
@@ -52,15 +52,26 @@ class CmdBatchTask extends DefaultTask {
         sb.append(System.lineSeparator());
         sb.append(cmdArgs);
         Utils.quickWriteWithNewLine(outputFile, sb.toString())
-        startProcess(dirFile, cmd.subCmds, outputFile, env, cmdArgs)
+        startProcess(dirFile, cmd.subCmds, outputFile, env, cmdArgs, path)
     }
 
     static void startProcess(File dir, List<String> input, File output, Map<String, String> env,
-                             List<String> cmd) {
+                             List<String> cmd, String path) {
         ProcessBuilder pb = new ProcessBuilder(cmd)
-        Utils.appendMap(pb.environment(), env, { original, append ->
-            original + File.pathSeparator + append
-        })
+        Map<String, String> oriEnv = pb.environment();
+        if (env != null && env.size() > 0) {
+            env.each {
+                oriEnv.put(it.key, it.value)
+            }
+        }
+        if (Utils.checkString(path)) {
+            String oriPath = oriEnv.get("PATH", null)
+            if (Utils.checkString(oriPath)) {
+                oriEnv.put("PATH", path + File.pathSeparator + oriPath)
+            } else {
+                oriEnv.put("PATH", path)
+            }
+        }
         pb.directory(dir)
         pb.redirectOutput(ProcessBuilder.Redirect.appendTo(output))
         Process process = pb.start()

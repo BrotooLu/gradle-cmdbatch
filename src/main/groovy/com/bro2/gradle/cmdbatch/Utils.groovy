@@ -52,17 +52,17 @@ class Utils {
             }
         }
 
-        String chield = name;
-        if (!checkString(chield)) {
-            chield = defaultName;
+        String child = name;
+        if (!checkString(child)) {
+            child = defaultName;
         }
 
         if (!replaceNameSeparator) {
-            filePath.append(chield)
+            filePath.append(child)
         } else if (rep == null || rep.length < 1) {
-            filePath.append(chield.replaceAll(File.separator, "_"))
+            filePath.append(child.replaceAll(File.separator, "_"))
         } else {
-            filePath.append(chield.replaceAll(File.separator, rep[0]))
+            filePath.append(child.replaceAll(File.separator, rep[0]))
         }
 
         return new File(filePath.toString())

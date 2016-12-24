@@ -7,6 +7,7 @@ class CmdBatchExtension {
     Map<String, Cmd> cmds = new HashMap<>()
     List<String> orderedCmds = []
     String dir
+    String path
     Map<String, String> env
     String runCmdBatchAfter
 

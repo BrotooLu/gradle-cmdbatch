@@ -9,6 +9,7 @@
 4、不再提供直接读取输入文件的功能；<br/>
 5、不再提供设置输出路径的功能，而是直接输出在工作目录下，按“程序下标+名字+同名下标“命名;<br/>
 6、[v0.1.0 文档 README](https://github.com/liu-bro2/gradle-cmdbatch/tree/v0.1.0)
+7、特殊对待环境变量PATH，使用独立的配置
 ### 使用方式
 #### 一、自动档
 
@@ -17,7 +18,7 @@
 ```
 buildscript {
     dependencies {
-        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.2.2'
     }
     repositories {
         maven {
@@ -32,7 +33,8 @@ cmdBatch {
     dir = '.'                          // [optional] 工作目录，默认为工程目录/build/cmdbatch
     env = ['optional'：'optional']     // [optional] 环境变量
     runCmdBatchAfter = 'build'         // [optional] 在 build 后自动执行
-    
+    path = '...'                       // [optional] 追加PATH环境变量
+
     cmd {
         name = 'adb'                   // [mandatory] 运行程序adb
         args = ['shell']               // [optional] 参数
@@ -58,7 +60,7 @@ cmdBatch {
 2、生成jar包；(可以运行gradle/gradlew jar，AndroidStudio用户可以直接点击task面板的jar)；<br/>
 3、将生成的jar包导入工程目录某个文件夹，如build-lib；<br/>
 
-[不编译获取jar包请点击](https://dl.bintray.com/bro2/repo-maven-gradle/com/bro2/gradle/cmdbatch/0.2.0/) 
+[不编译获取jar包请点击](https://dl.bintray.com/bro2/repo-maven-gradle/com/bro2/gradle/cmdbatch/0.2.2/)
 build.gradle编写示例同一，但需要修改dependencies：
 
 ```
@@ -77,7 +79,7 @@ buildscript {
 ```
 buildscript {
     dependencies {
-        classpath 'com.bro2.gradle:cmdbatch:0.2.0'
+        classpath 'com.bro2.gradle:cmdbatch:0.2.2'
     }
     repositories {
         mavenLocal()
