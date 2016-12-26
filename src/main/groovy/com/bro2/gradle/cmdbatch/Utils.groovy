@@ -45,8 +45,7 @@ class Utils {
     }
 
     private static String formatPathAsUnixStyle(String path) {
-        boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
-        if (!isWindows) {
+        if (!OsDetector.isWindows()) {
             return path
         }
 
@@ -75,14 +74,18 @@ class Utils {
             child = defaultName;
         }
 
+        if (!checkString(child)) {
+            throw new IllegalArgumentException("child name illegal: " + child)
+        }
+
         child = formatPathAsUnixStyle(child)
 
         if (!replaceNameSeparator) {
             filePath.append(child)
         } else if (rep == null || rep.length < 1) {
-            filePath.append(child.replaceAll(File.separator, "_"))
+            filePath.append(child.replaceAll(Pattern.quote(File.separator), "_"))
         } else {
-            filePath.append(child.replaceAll(File.separator, rep[0]))
+            filePath.append(child.replaceAll(Pattern.quote(File.separator), rep[0]))
         }
 
         return new File(filePath.toString())

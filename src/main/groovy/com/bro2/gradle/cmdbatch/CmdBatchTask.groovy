@@ -39,7 +39,8 @@ class CmdBatchTask extends DefaultTask {
             cmdArgs.addAll(cmd.args as List<String>)
         }
 
-        File dirFile = Utils.getDesireFile(project.buildDir.getCanonicalPath(), dir, "cmdbatch", false)
+        File dirFile = Utils.getDesireFile(null, dir, project.buildDir.getCanonicalPath()
+                + File.separator + "cmdbatch", false)
         String dirPath = dirFile.getCanonicalPath()
         if (!dirFile.exists()) {
             project.logger.info("mkdirs $dirPath")
@@ -48,28 +49,46 @@ class CmdBatchTask extends DefaultTask {
 
         File outputFile = Utils.getDesireFile(dirPath, output, output, true)
         StringBuilder sb = new StringBuilder();
-        sb.append(SimpleDateFormat.getDateTimeInstance().format(new Date()));
+        sb.append(SimpleDateFormat.getDateTimeInstance().format(new Date()))
         sb.append(System.lineSeparator());
         sb.append(cmdArgs);
         Utils.quickWriteWithNewLine(outputFile, sb.toString())
         startProcess(dirFile, cmd.subCmds, outputFile, env, cmdArgs, path)
     }
 
-    static void startProcess(File dir, List<String> input, File output, Map<String, String> env,
+    void startProcess(File dir, List<String> input, File output, Map<String, String> env,
                              List<String> cmd, String path) {
         ProcessBuilder pb = new ProcessBuilder(cmd)
-        Map<String, String> oriEnv = pb.environment();
+        Map<String, String> oriEnv = pb.environment()
+        if (oriEnv == null) {
+            oriEnv = System.getenv()
+        }
+
+        if (oriEnv == null) {
+            project.logger.warn('process original environment is null')
+        }
+
         if (env != null && env.size() > 0) {
             env.each {
                 oriEnv.put(it.key, it.value)
             }
         }
         if (Utils.checkString(path)) {
-            String oriPath = oriEnv.get("PATH", null)
+            String pathKey = "PATH"
+            if (OsDetector.isWindows()) {
+                oriEnv.find {
+                    if (pathKey.equalsIgnoreCase(it.key)) {
+                        pathKey = it.key
+                        return true
+                    }
+                    return false
+                }
+            }
+            String oriPath = oriEnv.get(pathKey)
             if (Utils.checkString(oriPath)) {
-                oriEnv.put("PATH", path + File.pathSeparator + oriPath)
+                oriEnv.put(pathKey, path + File.pathSeparator + oriPath)
             } else {
-                oriEnv.put("PATH", path)
+                oriEnv.put(pathKey, path)
             }
         }
         pb.directory(dir)
